@@ -12,33 +12,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-//builder.Services.AddDbContext<MemoryDbContext>();
-//builder.Services.AddScoped<IStudentRepository, MockStudentRepository>();
-
-
-builder.Services.AddDbContextPool<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Register DbContext with the dependency injection container
+builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("StudentManagementSystem.Data")));
 
 builder.Services.AddScoped<IStudentRepository, SQLStudentRepository>();
 builder.Services.AddScoped<IEnrollmentRepository, SQLEnrollmentRepository>();
 builder.Services.AddScoped<ICourseRepository, SQLCourseRepository>();
 
-builder.Services.AddHttpClient<IInstructorRepository, InstructorRepository>(client => client.BaseAddress = new Uri("https://localhost:7162/api/Instructors/"));
+builder.Services.AddHttpClient<IInstructorRepository, InstructorRepository>(client =>
+    client.BaseAddress = new Uri("https://localhost:7162/api/Instructors/"));
 
-
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-{
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 10;
     //options.Password.RequireNonAlphanumeric = true;
 }).AddEntityFrameworkStores<ApplicationDbContext>();
 
-
-//builder.Services.AddSingleton<HttpContextAccessor>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
+if (!app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();

@@ -131,9 +131,6 @@ namespace StudentManagementSystem.WEB.Controllers
                 return View();
             }
         }
-
-
-
         private async Task LoadInstructors()
         {
             IList<Instructor> instructors = await _instructorRepository.GetAllInstructors();
